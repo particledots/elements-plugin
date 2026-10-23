@@ -56,7 +56,8 @@ private:
     Knob contour, bowLevel, bowTimbre, blowLevel, blowMeta, blowTimbre, strikeLevel, strikeMeta, strikeTimbre;
     // resonator row
     Knob geometry, brightness, damping, position, space, transpose, fine, strength;
-    Choice model, route;
+    Choice model, route, pitchSnap;
+    std::unique_ptr<juce::ParameterAttachment> snapReadoutAtt, fineReadoutAtt;   // keep the Transpose readout in step
     Toggle gateBtn, velStrength, freeze, ominous, monoOut;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ElementsEditor)

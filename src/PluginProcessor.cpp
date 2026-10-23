@@ -49,6 +49,9 @@ juce::AudioProcessorValueTreeState::ParameterLayout ElementsAudioProcessor::crea
     p.push_back (std::make_unique<APF> (juce::ParameterID { "fine", 1 }, "Fine",
                  juce::NormalisableRange<float> (-2.f, 2.f, 0.01f), 0.f,
                  juce::AudioParameterFloatAttributes().withLabel ("st")));
+    // Added in 0.2.0. Off = exactly the 0.1.0 sound; old projects load with it Off.
+    p.push_back (std::make_unique<APC> (juce::ParameterID { "pitch_snap", 2 }, "Pitch Snap",
+                 juce::StringArray { "Off", "Steps", "Semitones" }, 0));
     p.push_back (unit ("strength",      "Strength",      0.5f));
 
     p.push_back (std::make_unique<APC> (juce::ParameterID { "model", 1 }, "Resonator Model", modelNames(), 0));
@@ -100,6 +103,7 @@ ElementsEngine::Params ElementsAudioProcessor::readParams() const
     p.position = v ("position");        p.space = v ("space");
     p.transpose = (int) std::lround (v ("transpose"));
     p.fine = v ("fine");
+    p.pitchSnap = (int) v ("pitch_snap");
     p.strength = v ("strength");
     p.model = (int) v ("model");
     p.audioRoute = (int) v ("audio_route");

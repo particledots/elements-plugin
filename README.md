@@ -47,6 +47,7 @@ the panel silkscreen.
 | Reverb Freeze | the firmware freezes the reverb when `space` is 1.75 or more. On the module that needs CV on top of the Space knob, so here it is a button |
 | Transpose | semitones added to the MIDI note, ±36 |
 | Fine | ±2 semitones (plain linear, not the module's quadratic fine-tune law) |
+| Pitch Snap (0.2.0, my addition, not in the module) | **Off** (the sound is exactly 0.1.0), **Steps** or **Semitones**. Acts on Transpose + Fine taken together. Steps are octaves and fifths: 0, 7, 12, 19, 24, 31, 36, 43, 48, both signs. Semitones rounds to whole notes. With it on, Fine only matters when it tips the total over a step. The Transpose readout shows the offset that plays. Old projects load with it Off. |
 | Strength | the firmware's `strength` (the PRESSURE input). 0.5 is unity gain in its accent table; 1.0 is about +15 dB, 0 about −15 dB |
 | Velocity > Strength | when on, MIDI velocity (0..1) drives Strength; the Strength knob is used until the first MIDI note, and whenever this is off. This mapping is my choice, not the module's |
 | Resonator Model | **Modal resonator**, **String**, **Strings (chords)**: the three models of the firmware's `ResonatorModel` |
