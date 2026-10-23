@@ -23,6 +23,18 @@ namespace
     }
 }
 
+float ElementsEngine::snapPitch (float semitones, int mode)
+{
+    if (mode == SnapSemitones) return std::round (semitones);
+    if (mode != SnapSteps) return semitones;
+    static const float kSteps[] = { 0.f, 7.f, 12.f, 19.f, 24.f, 31.f, 36.f, 43.f, 48.f };   // mirrored below zero
+    const float a = std::fabs (semitones);
+    float best = kSteps[0];
+    for (float d : kSteps)
+        if (std::fabs (a - d) < std::fabs (a - best)) best = d;
+    return semitones < 0.f ? -best : best;
+}
+
 template <typename T>
 void ZeroedDeleter<T>::operator() (T* p) const
 {
@@ -155,7 +167,11 @@ void ElementsEngine::runBlocks (const Params& p)
 
         PerformanceState ps;
         ps.gate = gate;
-        ps.note = note + (float) p.transpose + std::clamp (p.fine, -2.0f, 2.0f);   // the DSP takes a real MIDI note number
+        // the DSP takes a real MIDI note number. Pitch Snap acts on Transpose + Fine as one offset; Off is the untouched sum.
+        if (p.pitchSnap == SnapOff)
+            ps.note = note + (float) p.transpose + std::clamp (p.fine, -2.0f, 2.0f);
+        else
+            ps.note = note + snapPitch ((float) p.transpose + std::clamp (p.fine, -2.0f, 2.0f), p.pitchSnap);
         ps.modulation = 0.0f;                                                       // the FM input has no equivalent here
         const float strength = (p.velocityToStrength && vel >= 0.0f) ? vel : p.strength;
         ps.strength = std::clamp (strength, 0.0f, 1.0f);

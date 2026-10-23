@@ -96,6 +96,25 @@ ElementsEditor::ElementsEditor (ElementsAudioProcessor& p) : AudioProcessorEdito
 
     addChoice (model, "model",       "RESONATOR MODEL", ElementsAudioProcessor::modelNames());
     addChoice (route, "audio_route", "AUDIO INPUT",     ElementsAudioProcessor::routeNames());
+    addChoice (pitchSnap, "pitch_snap", "PITCH SNAP", { "Off", "Steps", "Semitones" });
+    pitchSnap.box.setTooltip ("What Transpose + Fine settle on. Steps = octaves and fifths (0, 7, 12, 19, 24 ... up to 48, both directions); "
+                              "Semitones = whole semitones. With Pitch Snap on, Fine only matters when it tips the total over a step. "
+                              "The Transpose readout shows the offset that plays.");
+    // With Pitch Snap on, the Transpose readout shows the offset that actually plays (Transpose + Fine, snapped).
+    transpose.slider.textFromValueFunction = [this] (double v)
+    {
+        const int mode = (int) proc.apvts.getRawParameterValue ("pitch_snap")->load();
+        if (mode == ElementsEngine::SnapOff) return juce::String ((int) std::lround (v));
+        const float total = (float) std::lround (v) + proc.apvts.getRawParameterValue ("fine")->load();
+        const int st = (int) std::lround (ElementsEngine::snapPitch (total, mode));
+        return st > 0 ? "+" + juce::String (st) : juce::String (st);
+    };
+    snapReadoutAtt = std::make_unique<juce::ParameterAttachment> (*proc.apvts.getParameter ("pitch_snap"),
+                                                                  [this] (float) { transpose.slider.updateText(); });
+    fineReadoutAtt = std::make_unique<juce::ParameterAttachment> (*proc.apvts.getParameter ("fine"),
+                                                                  [this] (float) { transpose.slider.updateText(); });
+    snapReadoutAtt->sendInitialUpdate();
+    fineReadoutAtt->sendInitialUpdate();
 
     addToggle (gateBtn,     "gate_btn",     "GATE");
     addToggle (velStrength, "vel_strength", "VELOCITY > STRENGTH");
@@ -192,6 +211,7 @@ void ElementsEditor::resized()
     };
     placeChoice (model, juce::Rectangle<int> (24, 420, 220, 48));
     placeChoice (route, juce::Rectangle<int> (260, 420, 220, 48));
+    placeChoice (pitchSnap, juce::Rectangle<int> (496, 420, 180, 48));
 
     gateBtn.button.setBounds     (24, 488, 90, 36);
     velStrength.button.setBounds (124, 488, 170, 36);

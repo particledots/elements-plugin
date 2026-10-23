@@ -19,6 +19,12 @@ public:
     // Where the plug-in's audio input goes. Left = strike input and right = blow input is how the module's two jacks are wired.
     enum AudioRoute { LeftStrikeRightBlow = 0, MonoToStrike = 1, MonoToBlow = 2 };
 
+    // Pitch Snap (our addition, not in the module): what the whole Transpose + Fine offset settles on.
+    //   Steps     - octaves and fifths across the control range: 0, 7, 12, 19, 24, 31, 36, 43, 48 (both directions)
+    //   Semitones - whole semitones
+    enum PitchSnap { SnapOff = 0, SnapSteps = 1, SnapSemitones = 2 };
+    static float snapPitch (float semitones, int mode);   // Off returns its input unchanged
+
     struct Params
     {
         // Exciter section (0..1 unless noted). Names follow the firmware's Patch struct.
@@ -35,6 +41,7 @@ public:
         // Pitch
         int   transpose = 0;                        // semitones, added to the MIDI note
         float fine = 0.0f;                          // semitones, -2..2
+        int   pitchSnap = SnapOff;                  // what Transpose + Fine settle on (see snapPitch)
         // Performance
         float strength = 0.5f;                      // 0..1, 0.5 is unity gain in the firmware's accent table
         bool  velocityToStrength = true;
